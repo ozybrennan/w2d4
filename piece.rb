@@ -12,14 +12,14 @@ class Piece
 
 	def perform_slide(move)
 		moves = find_move_set(move_diffs)
-		p moves
+		moves
 		if moves.include?(move)
 			board[move] = self
 			board[pos] = nil
 			@pos = move
-			p true
+			true
 		else
-			p false
+			false
 		end
 	end
 
@@ -52,13 +52,10 @@ class Piece
 	def perform_jump(move)
 		jump_diffs = move_diffs.map { |y, x| [y * 2, x * 2] }
 		jumps = find_move_set(jump_diffs)
-		p "jumps don't include move" unless jumps.include?(move) 
 		return false unless jumps.include?(move)
 		y, x = pos
 		y2, x2 = move
 		opponent_pos = [(((y2 - y) / 2) + y), (((x2 - x) / 2) + x)]
-		p opponent_pos
-		return "tried to jump a piece you can't" if board[opponent_pos].nil? || board[opponent_pos].color == color
 		return false if board[opponent_pos].nil? || board[opponent_pos].color == color
 		board[move] = self
 		board[pos] = nil
@@ -80,15 +77,6 @@ class Piece
 		end
 	end
 
-	def dup
-    	new_board = Board.new(empty = true)
-    	board.grid.flatten.compact.each do |el|
-      		new_board[el.pos] = Piece.new(new_board, el.pos, el.color, el.king)
-    	end
-   		new_board
-  	end
-
-
 	def valid_move_seq?(move_sequence)
 		begin
 			new_board = board.dup
@@ -97,6 +85,15 @@ class Piece
 			false
 		else
 			true
+		end
+	end
+
+	def perform_moves(move_sequence)
+		moves = move_sequence.dup
+		if valid_move_seq?(moves)
+			perform_moves!(move_sequence)
+		else
+			raise InvalidMoveError
 		end
 	end
 

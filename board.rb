@@ -72,11 +72,6 @@ class Board
 end
 
 b = Board.new
+b[[2, 1]].perform_moves([[3, 0]])
 b.render_board
-b[[2, 1]].perform_slide([3, 0])
-b[[3, 0]].perform_slide([4, 1])
-b[[1, 2]].perform_slide([2, 1])
-b.render_board
-p b[[5, 2]].valid_move_seq?([[3, 0], [1, 2]])
-b.render_board
-p b[[1, 2]].pos
+p b[[3,0]].pos
