@@ -69,13 +69,20 @@ class Board
    	new_board
   	end
 
-end
+  def mandatory_jump(color)
+    new_board = self.dup
+    final_jumps = []
+    board = new_board.grid.flatten.compact.select { |piece| piece.color == color}
+    board.each do |piece|
+      jump_diffs = piece.move_diffs.map { |y, x| [y * 2, x * 2] }
+      jumps = piece.find_move_set(jump_diffs)
+      jumps.each do |jump|
+        even_newer_board = self.dup
+        done = even_newer_board[piece.pos].perform_jump(jump)
+        final_jumps << jump if done
+      end
+    end
+    final_jumps
+  end
 
-b = Board.new(empty = true)
-b[[1, 2]] = Piece.new(b, [1,2], :red)
-b.render_board
-b[[1, 2]].perform_moves([[0,1]], :red)
-p b[[0, 1]].king
-b.render_board
-b[[0, 1]].perform_moves([[1,2]], :red)
-b.render_board
+end

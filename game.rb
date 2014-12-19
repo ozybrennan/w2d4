@@ -6,7 +6,11 @@ class Game
 	attr_reader :red, :black, :board
 
 	def initialize(red, black)
-		@board = Board.new
+		@board = Board.new(empty = true)
+		board[[1, 2]] = Piece.new(board, [1,2], :black)
+		board[[3, 4]] = Piece.new(board, [3, 4], :black)
+		board[[4, 5]] = Piece.new(board, [4, 5], :red)
+		board[[3, 6]] = Piece.new(board, [3, 6], :black)
 		@red = red
 		@black = black
 	end
@@ -20,12 +24,17 @@ class Game
         	begin
         	begin
         	begin
-          		start, move_sequence = player.play_turn(board)
+        		jumps = board.mandatory_jump(player.color)
+        		if jumps.empty?
+        			start, move_sequence = player.play_turn(board)
+        		else
+        			start, move_sequence = player.must_jump(jumps)
+        		end
          	rescue InvalidMoveError => e
           		p e.message
           		retry
           	end
-          	raise InvalidMoveError.new "there's no c6,piece there" if board[start].nil?
+          	raise InvalidMoveError.new "there's no piece there" if board[start].nil?
           	rescue InvalidMoveError => e	
           		p e.message
           		retry

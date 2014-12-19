@@ -58,6 +58,7 @@ class Piece
 	def perform_jump(move)
 		jump_diffs = move_diffs.map { |y, x| [y * 2, x * 2] }
 		jumps = find_move_set(jump_diffs)
+		p jumps
 		return false unless jumps.include?(move)
 		y, x = pos
 		y2, x2 = move
@@ -67,6 +68,7 @@ class Piece
 		board[pos] = nil
 		board[opponent_pos] = nil
 		@pos = move
+		board[move].maybe_promote
 		true
 	end
 
@@ -91,21 +93,6 @@ class Piece
 			false
 		else
 			true
-		end
-	end
-
-	def mandatory_jump
-		new_board = board.dup
-		new_board.grid.flatten.compact.each do |piece|
-			jump_diffs = move_diffs.map { |y, x| [y * 2, x * 2] }
-			jumps = find_move_set(jump_diffs)
-			jumps.each do |jump|
-				done = perform_jump(jump)
-				if done
-					p "You have to jumto #{jump}."
-					perform_moves
-				end
-			end
 		end
 	end
 
