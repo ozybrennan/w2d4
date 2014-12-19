@@ -71,7 +71,11 @@ class Board
 
 end
 
-b = Board.new
-b[[2, 1]].perform_moves([[3, 0]])
+b = Board.new(empty = true)
+b[[1, 2]] = Piece.new(b, [1,2], :red)
 b.render_board
-p b[[3,0]].pos
+b[[1, 2]].perform_moves([[0,1]], :red)
+p b[[0, 1]].king
+b.render_board
+b[[0, 1]].perform_moves([[1,2]], :red)
+b.render_board

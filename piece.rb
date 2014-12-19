@@ -1,13 +1,17 @@
+class InvalidMoveError < StandardError
+end
+
 class Piece
+	attr_reader :color, :board
+	attr_accessor :symbol, :king, :pos
 
-	attr_reader :symbol, :king, :color, :pos, :board
-
-	def initialize(board, pos, color, king = false)
+	def initialize(board, pos, color, king=false)
 		@board = board
 		@pos = pos
 		@color = color
-		@king = false
-		@symbol = "P"
+		@king = king
+		@symbol = "o" if color == :red
+		@symbol = "x" if color == :black 
 	end
 
 	def perform_slide(move)
@@ -15,8 +19,10 @@ class Piece
 		moves
 		if moves.include?(move)
 			board[move] = self
+			board[move].maybe_promote
 			board[pos] = nil
 			@pos = move
+			board[move].maybe_promote
 			true
 		else
 			false
@@ -40,7 +46,7 @@ class Piece
 	end
 
 	def move_diffs
-		if king
+		if king == true
 			[[1,1], [-1,-1],[-1, 1], [1, -1]]
 		elsif color == :black
 			[[1,1], [1, -1]]
@@ -88,16 +94,38 @@ class Piece
 		end
 	end
 
-	def perform_moves(move_sequence)
+	def mandatory_jump
+		new_board = board.dup
+		new_board.grid.flatten.compact.each do |piece|
+			jump_diffs = move_diffs.map { |y, x| [y * 2, x * 2] }
+			jumps = find_move_set(jump_diffs)
+			jumps.each do |jump|
+				done = perform_jump(jump)
+				if done
+					p "You have to jumto #{jump}."
+					perform_moves
+				end
+			end
+		end
+	end
+
+	def perform_moves(move_sequence = nil, player_color)
+		raise InvalidMoveError.new "wrong color" unless color == player_color
+		return if move_sequence.nil?
 		moves = move_sequence.dup
 		if valid_move_seq?(moves)
 			perform_moves!(move_sequence)
 		else
-			raise InvalidMoveError
+			raise InvalidMoveError.new "you can't go there"
 		end
 	end
 
-end
+	def maybe_promote
+		if (pos[0] == 0 && color == :red) || (pos[0] == 7 && color == :black)
+			@king = true
+			@symbol = "O" if color == :red && king == true
+			@symbol = "X" if color == :black && king == true
+		end
+	end
 
-class InvalidMoveError < StandardError
 end
