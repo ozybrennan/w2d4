@@ -63,5 +63,3 @@ class Game
 
 
 end
-
-Game.new(HumanPlayer.new("Ozy", :red), HumanPlayer.new("Scott", :black)).play
